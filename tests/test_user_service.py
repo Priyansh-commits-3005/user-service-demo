@@ -18,7 +18,9 @@ def client():
 def test_get_users_empty(client):
     response = client.get('/users')
     assert response.status_code == 200
-    assert json.loads(response.data) == []
+    data = json.loads(response.data)
+    assert data['users'] == []
+    assert data['total'] == 0
 
 def test_create_user(client):
     response = client.post('/users', 
@@ -35,4 +37,5 @@ def test_get_users(client):
     response = client.get('/users')
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert len(data) == 2
+    assert len(data['users']) == 2
+    assert data['total'] == 2
