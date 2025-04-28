@@ -29,6 +29,7 @@ pipeline {
         
         stage('Push to Minikube') {
             steps {
+                bat 'minikube start'
                 bat 'minikube image load user-service:latest'
             }
         }
