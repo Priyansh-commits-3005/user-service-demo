@@ -11,7 +11,7 @@
         stage('Setup Python') {
             steps {
                 bat 'python -m pip install --upgrade pip'
-                bat 'pip install -r requirements.txt'
+                bat 'python -m pip install -r requirements.txt'
             }
         }
         
