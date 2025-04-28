@@ -1,8 +1,14 @@
 ﻿from flask import Blueprint, jsonify, request
 from app.models import User
 from app import db
+import re
 
 user_bp = Blueprint('user_service', __name__)
+
+def validate_email(email):
+    """Validate email format"""
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return bool(re.match(pattern, email))
 
 @user_bp.route('/users', methods=['GET'])
 def get_users():
@@ -23,6 +29,14 @@ def create_user():
     if 'username' not in data or 'email' not in data:
         return jsonify({'error': 'Missing username or email'}), 400
     
+    # Validate email format
+    if not validate_email(data['email']):
+        return jsonify({'error': 'Invalid email format'}), 400
+    
+    # Validate username length
+    if len(data['username']) < 3:
+        return jsonify({'error': 'Username must be at least 3 characters'}), 400
+    
     new_user = User(username=data['username'], email=data['email'])
     db.session.add(new_user)
     db.session.commit()
@@ -35,8 +49,13 @@ def update_user(user_id):
     data = request.get_json()
     
     if 'username' in data:
+        if len(data['username']) < 3:
+            return jsonify({'error': 'Username must be at least 3 characters'}), 400
         user.username = data['username']
+        
     if 'email' in data:
+        if not validate_email(data['email']):
+            return jsonify({'error': 'Invalid email format'}), 400
         user.email = data['email']
     
     db.session.commit()
