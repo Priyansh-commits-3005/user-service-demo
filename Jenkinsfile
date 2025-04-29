@@ -22,8 +22,10 @@ pipeline {
         }
         stage('Start Minikube') {
             steps {
-                bat 'minikube status || minikube start'
+                bat 'minikube delete || echo "No existing minikube cluster"'
+                bat 'minikube start --memory=4096 --cpus=2 --extra-config=kubelet.selinux-permissive=true'
                 bat 'minikube status'
+                bat 'timeout /t 30'  // Give API server time to stabilize
             }
         }        
         stage('Build Docker Image') {
@@ -40,15 +42,14 @@ pipeline {
         
         stage('Deploy to Kubernetes') {
             steps {
-                bat 'kubectl apply -f k8s/deployment.yaml'
-                bat 'kubectl rollout status deployment/user-service'
-
+                bat 'kubectl --context=minikube apply -f k8s/deployment.yaml'
+                bat 'kubectl --context=minikube rollout status deployment/user-service'
             }
         }
         stage('Verify Deployment') {
             steps {
-                bat 'kubectl get pods'
-                bat 'kubectl get svc user-service'
+                bat 'kubectl --context=minikube get pods'
+                bat 'kubectl --context=minikube get svc user-service'
             }
         }
     }
