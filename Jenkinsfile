@@ -20,7 +20,12 @@ pipeline {
                 bat 'python -m pytest tests/'
             }
         }
-        
+        stage('Start Minikube') {
+            steps {
+                bat 'minikube status || minikube start'
+                bat 'minikube status'
+            }
+        }        
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t user-service:latest .'
@@ -29,7 +34,6 @@ pipeline {
         
         stage('Push to Minikube') {
             steps {
-                bat 'minikube start'
                 bat 'minikube image load user-service:latest'
             }
         }
@@ -37,6 +41,14 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 bat 'kubectl apply -f k8s/deployment.yaml'
+                bat 'kubectl rollout status deployment/user-service'
+
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                bat 'kubectl get pods'
+                bat 'kubectl get svc user-service'
             }
         }
     }
