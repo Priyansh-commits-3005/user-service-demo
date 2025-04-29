@@ -23,7 +23,7 @@ pipeline {
         stage('Start Minikube') {
             steps {
                 bat 'minikube delete || echo "No existing minikube cluster"'
-                bat 'minikube start --memory=4096 --cpus=2 --extra-config=kubelet.selinux-permissive=true'
+                bat 'minikube start --memory=3000 --cpus=2 --extra-config=kubelet.selinux-permissive=true'
                 bat 'minikube status'
                 bat 'timeout /t 30'  // Give API server time to stabilize
             }
